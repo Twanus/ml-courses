@@ -1,0 +1,26 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # every hour
+  workflow_dispatch:     # allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Add upstream
+        run: git remote add upstream https://github.com/ap-mdi-it/ml-courses.git
+
+      - name: Fetch and merge upstream
+        run: |
+          git fetch upstream
+          git checkout main
+          git merge upstream/main --allow-unrelated-histories || true
+          git push origin main
